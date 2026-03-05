@@ -1,0 +1,195 @@
+<% function formatEventType(type) { const map={ 'compra_aprovada' : 'Aprovada' , 'compra_recusada' : 'Recusada'
+    , 'pix_gerado' : 'PIX Gerado' , 'reembolso' : 'Reembolso' , 'chargeback' : 'Chargeback' , }; return map[type] ||
+    type; } %>
+    <%- include('partials/header') %>
+
+        <div class="page-header">
+            <h1>Dashboard</h1>
+            <p class="subtitle">Visão geral das suas vendas</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card stat-active">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">
+                        <%= activeBuyers %>
+                    </span>
+                    <span class="stat-label">Compradores Ativos</span>
+                </div>
+            </div>
+
+            <div class="stat-card stat-revenue">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">R$ <%= Number(stats.total_revenue).toLocaleString('pt-BR',
+                            {minimumFractionDigits: 2}) %></span>
+                    <span class="stat-label">Receita Total</span>
+                </div>
+            </div>
+
+            <div class="stat-card stat-approved">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">
+                        <%= stats.approved %>
+                    </span>
+                    <span class="stat-label">Aprovadas</span>
+                </div>
+            </div>
+
+            <div class="stat-card stat-pix">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                        <line x1="2" y1="10" x2="22" y2="10" />
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">
+                        <%= stats.pix_generated %>
+                    </span>
+                    <span class="stat-label">PIX Gerados</span>
+                </div>
+            </div>
+
+            <div class="stat-card stat-refused">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">
+                        <%= stats.refused %>
+                    </span>
+                    <span class="stat-label">Recusadas</span>
+                </div>
+            </div>
+
+            <div class="stat-card stat-refund">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="1 4 1 10 7 10" />
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">
+                        <%= stats.refunds %>
+                    </span>
+                    <span class="stat-label">Reembolsos</span>
+                </div>
+            </div>
+
+            <div class="stat-card stat-chargeback">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">
+                        <%= stats.chargebacks %>
+                    </span>
+                    <span class="stat-label">Chargebacks</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="card chart-card">
+            <div class="card-header">
+                <h2>Eventos — Últimos 30 dias</h2>
+            </div>
+            <div class="card-body">
+                <canvas id="eventsChart" height="80"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Últimas Transações</h2>
+                <a href="/transactions" class="btn btn-sm">Ver todas →</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Evento</th>
+                                <th>Cliente</th>
+                                <th>Produto</th>
+                                <th>Valor</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% recentTransactions.forEach(tx=> { %>
+                                <tr>
+                                    <td><span class="badge badge-<%= tx.event_type %>">
+                                            <%= formatEventType(tx.event_type) %>
+                                        </span></td>
+                                    <td>
+                                        <div class="cell-main">
+                                            <%= tx.customer_name || '—' %>
+                                        </div>
+                                        <div class="cell-sub">
+                                            <%= tx.customer_email || '' %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <%= tx.product_name || '—' %>
+                                    </td>
+                                    <td>
+                                        <%= tx.amount ? 'R$ ' + Number(tx.amount).toLocaleString('pt-BR',
+                                            {minimumFractionDigits:2}) : '—' %>
+                                    </td>
+                                    <td>
+                                        <%= new Date(tx.received_at).toLocaleString('pt-BR') %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% if (recentTransactions.length===0) { %>
+                                        <tr>
+                                            <td colspan="5" class="empty-state">Nenhuma transação ainda</td>
+                                        </tr>
+                                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const chartData = <% - chartData %>;
+            if (chartData.length > 0) {
+                initDashboardChart(chartData);
+            }
+        </script>
+
+        <%- include('partials/footer') %>

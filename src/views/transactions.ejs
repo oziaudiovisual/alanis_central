@@ -1,0 +1,140 @@
+<% function formatEventType(type) { const map={ 'compra_aprovada' : 'Aprovada' , 'compra_recusada' : 'Recusada'
+    , 'pix_gerado' : 'PIX Gerado' , 'reembolso' : 'Reembolso' , 'chargeback' : 'Chargeback' , }; return map[type] ||
+    type; } %>
+    <%- include('partials/header') %>
+
+        <div class="page-header">
+            <h1>Transações</h1>
+            <p class="subtitle">Log completo de eventos recebidos via webhook</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <form method="GET" action="/transactions" class="filters-form">
+                <div class="filter-group">
+                    <select name="eventType" class="form-select" onchange="this.form.submit()">
+                        <option value="" <%=!filters.eventType ? 'selected' : '' %>>Todos os Eventos</option>
+                        <option value="compra_aprovada" <%=filters.eventType==='compra_aprovada' ? 'selected' : '' %>>✅
+                            Aprovada</option>
+                        <option value="compra_recusada" <%=filters.eventType==='compra_recusada' ? 'selected' : '' %>>❌
+                            Recusada</option>
+                        <option value="pix_gerado" <%=filters.eventType==='pix_gerado' ? 'selected' : '' %>>💠 PIX
+                            Gerado</option>
+                        <option value="reembolso" <%=filters.eventType==='reembolso' ? 'selected' : '' %>>↩️ Reembolso
+                        </option>
+                        <option value="chargeback" <%=filters.eventType==='chargeback' ? 'selected' : '' %>>⚠️
+                            Chargeback</option>
+                    </select>
+                </div>
+                <div class="filter-group filter-search">
+                    <input type="text" name="search" placeholder="Buscar por nome ou email..."
+                        value="<%= filters.search %>" class="form-input">
+                    <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="results-count">
+            <span>
+                <%= total %> transaç<%= total !==1 ? 'ões' : 'ão' %> encontrada<%= total !==1 ? 's' : '' %>
+            </span>
+        </div>
+
+        <!-- Transactions table -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Evento</th>
+                                <th>Cliente</th>
+                                <th>Produto</th>
+                                <th>Valor</th>
+                                <th>Pagamento</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% transactions.forEach(tx=> { %>
+                                <tr>
+                                    <td><span class="badge badge-<%= tx.event_type %>">
+                                            <%= formatEventType(tx.event_type) %>
+                                        </span></td>
+                                    <td>
+                                        <div class="cell-main">
+                                            <%= tx.customer_name || '—' %>
+                                        </div>
+                                        <div class="cell-sub">
+                                            <%= tx.customer_email || '' %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <%= tx.product_name || '—' %>
+                                    </td>
+                                    <td>
+                                        <%= tx.amount ? 'R$ ' + Number(tx.amount).toLocaleString('pt-BR',
+                                            {minimumFractionDigits:2}) : '—' %>
+                                    </td>
+                                    <td>
+                                        <%= tx.payment_method || '—' %>
+                                    </td>
+                                    <td>
+                                        <%= new Date(tx.received_at).toLocaleString('pt-BR') %>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-ghost" onclick="viewPayload(<%= tx.id %>)"
+                                            title="Ver payload">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                                <polyline points="14 2 14 8 20 8" />
+                                                <line x1="16" y1="13" x2="8" y2="13" />
+                                                <line x1="16" y1="17" x2="8" y2="17" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% if (transactions.length===0) { %>
+                                        <tr>
+                                            <td colspan="7" class="empty-state">Nenhuma transação encontrada</td>
+                                        </tr>
+                                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages> 1) { %>
+            <div class="pagination">
+                <% if (page> 1) { %>
+                    <a href="/transactions?page=<%= page - 1 %>&eventType=<%= filters.eventType %>&search=<%= encodeURIComponent(filters.search) %>"
+                        class="btn btn-sm">← Anterior</a>
+                    <% } %>
+                        <span class="page-info">Página <%= page %> de <%= totalPages %></span>
+                        <% if (page < totalPages) { %>
+                            <a href="/transactions?page=<%= page + 1 %>&eventType=<%= filters.eventType %>&search=<%= encodeURIComponent(filters.search) %>"
+                                class="btn btn-sm">Próxima →</a>
+                            <% } %>
+            </div>
+            <% } %>
+
+                <!-- Payload Modal -->
+                <div id="payloadModal" class="modal" style="display:none;">
+                    <div class="modal-overlay" onclick="closePayloadModal()"></div>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Payload do Webhook</h3>
+                            <button onclick="closePayloadModal()" class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <pre id="payloadContent" class="payload-pre"></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('partials/footer') %>

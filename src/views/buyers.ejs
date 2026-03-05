@@ -1,0 +1,115 @@
+<% function formatBuyerStatus(status) { const map={ active: 'Ativo' , refunded: 'Reembolsado' , chargeback: 'Chargeback'
+    }; return map[status] || status; } %>
+    <%- include('partials/header') %>
+
+        <div class="page-header">
+            <div class="page-header-left">
+                <h1>Compradores</h1>
+                <p class="subtitle">Lista de compradores e seus status</p>
+            </div>
+            <div class="page-header-right">
+                <a href="/buyers/export?status=<%= filters.status %>&search=<%= encodeURIComponent(filters.search) %>"
+                    class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Exportar CSV
+                </a>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <form method="GET" action="/buyers" class="filters-form">
+                <div class="filter-group">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="all" <%=filters.status==='all' ? 'selected' : '' %>>Todos os Status</option>
+                        <option value="active" <%=filters.status==='active' ? 'selected' : '' %>>✅ Ativos</option>
+                        <option value="refunded" <%=filters.status==='refunded' ? 'selected' : '' %>>↩️ Reembolsados
+                        </option>
+                        <option value="chargeback" <%=filters.status==='chargeback' ? 'selected' : '' %>>⚠️ Chargeback
+                        </option>
+                    </select>
+                </div>
+                <div class="filter-group filter-search">
+                    <input type="text" name="search" placeholder="Buscar por nome ou email..."
+                        value="<%= filters.search %>" class="form-input">
+                    <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Buyers count -->
+        <div class="results-count">
+            <span>
+                <%= total %> comprador<%= total !==1 ? 'es' : '' %> encontrado<%= total !==1 ? 's' : '' %>
+            </span>
+        </div>
+
+        <!-- Buyers table -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Telefone</th>
+                                <th>Status</th>
+                                <th>Total Gasto</th>
+                                <th>Última Atividade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% buyers.forEach(b=> { %>
+                                <tr>
+                                    <td class="cell-main">
+                                        <%= b.name || '—' %>
+                                    </td>
+                                    <td>
+                                        <%= b.email %>
+                                    </td>
+                                    <td>
+                                        <%= b.phone || '—' %>
+                                    </td>
+                                    <td><span class="badge badge-buyer-<%= b.status %>">
+                                            <%= formatBuyerStatus(b.status) %>
+                                        </span></td>
+                                    <td>R$ <%= Number(b.total_spent || 0).toLocaleString('pt-BR',
+                                            {minimumFractionDigits:2}) %>
+                                    </td>
+                                    <td>
+                                        <%= b.last_event_at ? new Date(b.last_event_at).toLocaleString('pt-BR') : '—' %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% if (buyers.length===0) { %>
+                                        <tr>
+                                            <td colspan="6" class="empty-state">Nenhum comprador encontrado</td>
+                                        </tr>
+                                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages> 1) { %>
+            <div class="pagination">
+                <% if (page> 1) { %>
+                    <a href="/buyers?page=<%= page - 1 %>&status=<%= filters.status %>&search=<%= encodeURIComponent(filters.search) %>"
+                        class="btn btn-sm">← Anterior</a>
+                    <% } %>
+                        <span class="page-info">Página <%= page %> de <%= totalPages %></span>
+                        <% if (page < totalPages) { %>
+                            <a href="/buyers?page=<%= page + 1 %>&status=<%= filters.status %>&search=<%= encodeURIComponent(filters.search) %>"
+                                class="btn btn-sm">Próxima →</a>
+                            <% } %>
+            </div>
+            <% } %>
+
+                <%- include('partials/footer') %>

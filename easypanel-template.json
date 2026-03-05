@@ -1,0 +1,43 @@
+{
+    "services": [
+        {
+            "type": "app",
+            "data": {
+                "projectName": "alanis-central",
+                "serviceName": "app",
+                "source": {
+                    "type": "github",
+                    "owner": "SEU_USUARIO_GITHUB",
+                    "repo": "alanis_central",
+                    "ref": "main",
+                    "path": "/"
+                },
+                "build": {
+                    "type": "dockerfile",
+                    "file": "Dockerfile"
+                },
+                "env": "DATABASE_URL=postgres://postgres:$(DB_PASSWORD)@alanis-central-db:5432/alanis_central\nSESSION_SECRET=$(SESSION_SECRET)\nNODE_ENV=production\nPORT=3000\nADMIN_EMAIL=admin@alanis.com\nADMIN_PASSWORD=admin123",
+                "domains": [
+                    {
+                        "host": "$(EASYPANEL_DOMAIN)"
+                    }
+                ],
+                "ports": [
+                    {
+                        "published": 3000,
+                        "target": 3000
+                    }
+                ]
+            }
+        },
+        {
+            "type": "postgres",
+            "data": {
+                "projectName": "alanis-central",
+                "serviceName": "db",
+                "image": "postgres:16-alpine",
+                "password": "$(DB_PASSWORD)"
+            }
+        }
+    ]
+}
