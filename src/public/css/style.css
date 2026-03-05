@@ -114,17 +114,16 @@ a {
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 20px;
+  justify-content: center;
+  padding: 24px 20px;
   border-bottom: 1px solid var(--border-color);
 }
 
 .brand-logo {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
+  width: 80%;
+  height: auto;
   object-fit: contain;
-  flex-shrink: 0;
+  display: block;
 }
 
 .brand-logo.large {
