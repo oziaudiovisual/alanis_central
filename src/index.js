@@ -18,10 +18,17 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet({
     contentSecurityPolicy: false, // Allow inline scripts for Chart.js
 }));
-app.use(morgan('short'));
+app.use(morgan('short', {
+    skip: (req) => req.url.startsWith('/css/') || req.url.startsWith('/js/') || req.url === '/logo.webp' || req.url === '/favicon.ico',
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Favicon → use logo
+app.get('/favicon.ico', (req, res) => {
+    res.redirect(301, '/logo.webp');
+});
 
 // ---------- View Engine ----------
 app.set('view engine', 'ejs');
