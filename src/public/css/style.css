@@ -863,6 +863,15 @@ a {
   font-size: 14px;
 }
 
+.login-logo {
+  width: 80%;
+  max-width: 320px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 8px;
+}
+
 .login-form {
   display: flex;
   flex-direction: column;
