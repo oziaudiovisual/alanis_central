@@ -69,7 +69,10 @@ const Transaction = {
         COUNT(*) FILTER (WHERE event_type = 'reembolso') AS refunds,
         COUNT(*) FILTER (WHERE event_type = 'chargeback') AS chargebacks,
         COUNT(*) AS total,
-        COALESCE(SUM(amount) FILTER (WHERE event_type = 'compra_aprovada'), 0) AS total_revenue
+        COALESCE(SUM(amount) FILTER (WHERE event_type = 'compra_aprovada'), 0)
+          - COALESCE(SUM(amount) FILTER (WHERE event_type = 'reembolso'), 0)
+          - COALESCE(SUM(amount) FILTER (WHERE event_type = 'chargeback'), 0)
+        AS total_revenue
       FROM transactions
     `);
         return result.rows[0];
