@@ -16,11 +16,11 @@ function initDashboardChart(data) {
         chargeback: 'Chargebacks',
     };
     const eventColors = {
-        compra_aprovada: '#22c55e',
-        compra_recusada: '#ef4444',
-        pix_gerado: '#06b6d4',
-        reembolso: '#f97316',
-        chargeback: '#f59e0b',
+        compra_aprovada: '#04ffc2',
+        compra_recusada: '#ff4d6a',
+        pix_gerado: '#22d3ee',
+        reembolso: '#fb923c',
+        chargeback: '#ffbe0b',
     };
 
     const datasets = eventTypes.map(type => ({
@@ -58,7 +58,7 @@ function initDashboardChart(data) {
                 legend: {
                     position: 'bottom',
                     labels: {
-                        color: '#9898a8',
+                        color: '#a3a3a3',
                         font: { size: 12, family: 'Inter' },
                         padding: 16,
                         usePointStyle: true,
@@ -66,11 +66,11 @@ function initDashboardChart(data) {
                     },
                 },
                 tooltip: {
-                    backgroundColor: '#1c1c26',
-                    borderColor: '#2a2a3a',
+                    backgroundColor: '#262626',
+                    borderColor: '#333333',
                     borderWidth: 1,
-                    titleColor: '#f0f0f4',
-                    bodyColor: '#9898a8',
+                    titleColor: '#ffffff',
+                    bodyColor: '#a3a3a3',
                     titleFont: { weight: '600' },
                     padding: 12,
                     cornerRadius: 8,
@@ -78,8 +78,8 @@ function initDashboardChart(data) {
             },
             scales: {
                 x: {
-                    grid: { color: '#2a2a3a' },
-                    ticks: { color: '#6b6b7b', font: { size: 11 } },
+                    grid: { color: '#333333' },
+                    ticks: { color: '#737373', font: { size: 11 } },
                 },
                 y: {
                     beginAtZero: true,
