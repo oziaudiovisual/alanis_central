@@ -1,5 +1,6 @@
 const Transaction = require('../models/transaction');
 const Buyer = require('../models/buyer');
+const License = require('../models/license');
 
 const EVENT_TYPES = {
     COMPRA_APROVADA: 'compra_aprovada',
@@ -43,8 +44,14 @@ async function processWebhook(event, data, rawPayload) {
         await updateBuyerFromEvent(eventType, customer, data);
     }
 
-    console.log(`Webhook processed: ${eventType} | ${customer.email || 'unknown'} | TX#${transaction.id}`);
-    return { success: true, transactionId: transaction.id };
+    // License management
+    let licenseKey = null;
+    if (customer.email) {
+        licenseKey = await handleLicenseEvent(eventType, customer, data, transaction.id);
+    }
+
+    console.log(`Webhook processed: ${eventType} | ${customer.email || 'unknown'} | TX#${transaction.id}${licenseKey ? ` | License: ${licenseKey}` : ''}`);
+    return { success: true, transactionId: transaction.id, licenseKey };
 }
 
 async function updateBuyerFromEvent(eventType, customer, data) {
@@ -71,6 +78,36 @@ async function updateBuyerFromEvent(eventType, customer, data) {
         // pix_gerado and compra_recusada don't change buyer status
         default:
             break;
+    }
+}
+
+async function handleLicenseEvent(eventType, customer, data, transactionId) {
+    switch (eventType) {
+        case EVENT_TYPES.COMPRA_APROVADA: {
+            const license = await License.create({
+                email: customer.email,
+                name: customer.name,
+                phone: customer.phone,
+                plan: data.plan || data.product?.name || 'default',
+                transactionId,
+                maxInstances: data.maxInstances || 1,
+                expiresAt: data.expiresAt || null,
+            });
+            console.log(`License created: ${license.license_key} for ${customer.email}`);
+            return license.license_key;
+        }
+        case EVENT_TYPES.REEMBOLSO: {
+            const revoked = await License.revokeByEmail(customer.email, 'refund');
+            if (revoked.length > 0) console.log(`License revoked (refund): ${customer.email}`);
+            return null;
+        }
+        case EVENT_TYPES.CHARGEBACK: {
+            const revoked = await License.revokeByEmail(customer.email, 'chargeback');
+            if (revoked.length > 0) console.log(`License revoked (chargeback): ${customer.email}`);
+            return null;
+        }
+        default:
+            return null;
     }
 }
 

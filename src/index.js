@@ -53,9 +53,11 @@ app.use(session({
 // ---------- Routes ----------
 app.use('/webhook', require('./routes/webhook'));
 app.use('/auth', require('./routes/auth'));
+app.use('/license', require('./routes/license'));
 app.use('/', require('./routes/dashboard'));
 app.use('/buyers', require('./routes/buyers'));
 app.use('/transactions', require('./routes/transactions'));
+app.use('/licenses', require('./routes/licenses'));
 app.use('/settings', require('./routes/settings'));
 
 // ---------- Error handler ----------
@@ -68,10 +70,13 @@ app.use((err, req, res, _next) => {
 async function bootstrap() {
     // Run migrations
     try {
-        const migrationPath = path.join(__dirname, '../migrations/001_initial.sql');
-        const sql = fs.readFileSync(migrationPath, 'utf8');
-        await pool.query(sql);
-        console.log('✓ Database migrations applied');
+        const migrationsDir = path.join(__dirname, '../migrations');
+        const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
+        for (const file of files) {
+            const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+            await pool.query(sql);
+        }
+        console.log(`✓ Database migrations applied (${files.length} files)`);
     } catch (err) {
         console.error('Migration error:', err.message);
     }
