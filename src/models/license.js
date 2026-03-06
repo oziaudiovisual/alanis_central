@@ -88,6 +88,15 @@ const License = {
         return result.rows[0] || null;
     },
 
+    async reactivate(id, hours) {
+        const expiresAt = hours ? new Date(Date.now() + hours * 60 * 60 * 1000) : null;
+        const result = await pool.query(
+            `UPDATE licenses SET status = 'active', expires_at = $1, instances = '[]'::jsonb WHERE id = $2 RETURNING *`,
+            [expiresAt, id]
+        );
+        return result.rows[0] || null;
+    },
+
     async findAll({ page = 1, limit = 25, status, search }) {
         let where = [];
         let params = [];

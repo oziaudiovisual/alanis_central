@@ -9,167 +9,232 @@
             </div>
         </div>
 
-        <!-- Stats -->
-        <div class="stats-grid">
-            <div class="stat-card stat-active">
-                <div class="stat-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value">
-                        <%= counts.active %>
-                    </span>
-                    <span class="stat-label">ATIVAS</span>
-                </div>
-            </div>
-            <div class="stat-card stat-refused">
-                <div class="stat-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="15" y1="9" x2="9" y2="15" />
-                        <line x1="9" y1="9" x2="15" y2="15" />
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value">
-                        <%= counts.cancelled %>
-                    </span>
-                    <span class="stat-label">CANCELADAS</span>
-                </div>
-            </div>
-            <div class="stat-card stat-chargeback">
-                <div class="stat-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="8" x2="12" y2="12" />
-                        <line x1="12" y1="16" x2="12.01" y2="16" />
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value">
-                        <%= counts.expired %>
-                    </span>
-                    <span class="stat-label">EXPIRADAS</span>
-                </div>
-            </div>
-            <div class="stat-card stat-pix">
-                <div class="stat-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                    </svg>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-value">
-                        <%= counts.total %>
-                    </span>
-                    <span class="stat-label">TOTAL</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filters -->
-        <div class="filters-bar">
-            <form method="GET" action="/licenses" class="filters-form">
-                <div class="filter-group">
-                    <select name="status" class="form-select btn" onchange="this.form.submit()">
-                        <option value="all" <%=filters.status==='all' ? 'selected' : '' %>>Todos Status</option>
-                        <option value="active" <%=filters.status==='active' ? 'selected' : '' %>>Ativas</option>
-                        <option value="cancelled" <%=filters.status==='cancelled' ? 'selected' : '' %>>Canceladas
-                        </option>
-                        <option value="expired" <%=filters.status==='expired' ? 'selected' : '' %>>Expiradas</option>
-                        <option value="suspended" <%=filters.status==='suspended' ? 'selected' : '' %>>Suspensas
-                        </option>
-                    </select>
-                </div>
-                <div class="filter-search">
-                    <input type="text" name="search" value="<%= filters.search %>"
-                        placeholder="Buscar por email, nome ou chave..." class="form-input">
-                    <button type="submit" class="btn btn-primary">Buscar</button>
-                </div>
-            </form>
-        </div>
-
-        <p class="results-count">
-            <%= pagination.total %> licença(s) encontrada(s)
-        </p>
-
-        <!-- Table -->
-        <div class="card">
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>CHAVE</th>
-                            <th>CLIENTE</th>
-                            <th>PLANO</th>
-                            <th>STATUS</th>
-                            <th>INSTÂNCIAS</th>
-                            <th>CRIADA EM</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (licenses.length===0) { %>
-                            <tr>
-                                <td colspan="6" class="empty-state">Nenhuma licença encontrada</td>
-                            </tr>
-                            <% } else { %>
-                                <% licenses.forEach(l=> { %>
-                                    <tr>
-                                        <td>
-                                            <div style="display:flex; align-items:center; gap:6px;">
-                                                <code
-                                                    style="font-size: 12px; color: var(--accent-primary);"><%= l.license_key.substring(0, 8) %>...<%= l.license_key.substring(l.license_key.length - 4) %></code>
-                                                <button
-                                                    onclick="navigator.clipboard.writeText('<%= l.license_key %>');this.innerHTML='✓';setTimeout(()=>this.innerHTML='📋',1500)"
-                                                    title="Copiar chave"
-                                                    style="cursor:pointer;background:none;border:none;font-size:14px;padding:2px;">📋</button>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="cell-main">
-                                                <%= l.name || '—' %>
-                                            </div>
-                                            <div class="cell-sub">
-                                                <%= l.email %>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <%= l.plan %>
-                                        </td>
-                                        <td><span class="badge badge-license-<%= l.status %>">
-                                                <%= formatLicenseStatus(l.status) %>
-                                            </span></td>
-                                        <td>
-                                            <%= (l.instances || []).length %>/<%= l.max_instances %>
-                                        </td>
-                                        <td>
-                                            <%= new Date(l.created_at).toLocaleString('pt-BR', {
-                                                timeZone: 'America/Sao_Paulo' }) %>
-                                        </td>
-                                    </tr>
-                                    <% }) %>
-                                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <% if (pagination.totalPages> 1) { %>
-            <div class="pagination">
-                <% if (pagination.page> 1) { %>
-                    <a href="/licenses?page=<%= pagination.page - 1 %>&status=<%= filters.status %>&search=<%= filters.search %>"
-                        class="btn btn-sm">← Anterior</a>
-                    <% } %>
-                        <span class="page-info">Página <%= pagination.page %> de <%= pagination.totalPages %></span>
-                        <% if (pagination.page < pagination.totalPages) { %>
-                            <a href="/licenses?page=<%= pagination.page + 1 %>&status=<%= filters.status %>&search=<%= filters.search %>"
-                                class="btn btn-sm">Próxima →</a>
-                            <% } %>
-            </div>
+        <% if (typeof req !=='undefined' || filters.success || filters.error) { %>
             <% } %>
+                <% var qs=require('querystring'); %>
+                    <% var urlSuccess=new URLSearchParams(typeof req !=='undefined' ? req.query : {}).get('success'); %>
 
-                <%- include('partials/footer') %>
+                        <script>
+                            (function () {
+                                var params = new URLSearchParams(window.location.search);
+                                var s = params.get('success');
+                                var e = params.get('error');
+                                if (s) {
+                                    var d = document.createElement('div');
+                                    d.className = 'alert alert-success';
+                                    d.textContent = s;
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        var ph = document.querySelector('.page-header');
+                                        ph.parentNode.insertBefore(d, ph.nextSibling);
+                                        setTimeout(function () { d.remove(); }, 5000);
+                                    });
+                                }
+                                if (e) {
+                                    var d2 = document.createElement('div');
+                                    d2.className = 'alert alert-error';
+                                    d2.textContent = e;
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        var ph = document.querySelector('.page-header');
+                                        ph.parentNode.insertBefore(d2, ph.nextSibling);
+                                        setTimeout(function () { d2.remove(); }, 5000);
+                                    });
+                                }
+                            })();
+                        </script>
+
+                        <!-- Stats -->
+                        <div class="stats-grid">
+                            <div class="stat-card stat-active">
+                                <div class="stat-icon">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                        <polyline points="22 4 12 14.01 9 11.01" />
+                                    </svg>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value">
+                                        <%= counts.active %>
+                                    </span>
+                                    <span class="stat-label">ATIVAS</span>
+                                </div>
+                            </div>
+                            <div class="stat-card stat-refused">
+                                <div class="stat-icon">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="15" y1="9" x2="9" y2="15" />
+                                        <line x1="9" y1="9" x2="15" y2="15" />
+                                    </svg>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value">
+                                        <%= counts.cancelled %>
+                                    </span>
+                                    <span class="stat-label">CANCELADAS</span>
+                                </div>
+                            </div>
+                            <div class="stat-card stat-chargeback">
+                                <div class="stat-icon">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="12" y1="8" x2="12" y2="12" />
+                                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                                    </svg>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value">
+                                        <%= counts.expired %>
+                                    </span>
+                                    <span class="stat-label">EXPIRADAS</span>
+                                </div>
+                            </div>
+                            <div class="stat-card stat-pix">
+                                <div class="stat-icon">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                                    </svg>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value">
+                                        <%= counts.total %>
+                                    </span>
+                                    <span class="stat-label">TOTAL</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="filters-bar">
+                            <form method="GET" action="/licenses" class="filters-form">
+                                <div class="filter-group">
+                                    <select name="status" class="form-select btn" onchange="this.form.submit()">
+                                        <option value="all" <%=filters.status==='all' ? 'selected' : '' %>>Todos Status
+                                        </option>
+                                        <option value="active" <%=filters.status==='active' ? 'selected' : '' %>>Ativas
+                                        </option>
+                                        <option value="cancelled" <%=filters.status==='cancelled' ? 'selected' : '' %>
+                                            >Canceladas
+                                        </option>
+                                        <option value="expired" <%=filters.status==='expired' ? 'selected' : '' %>
+                                            >Expiradas</option>
+                                        <option value="suspended" <%=filters.status==='suspended' ? 'selected' : '' %>
+                                            >Suspensas
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="filter-search">
+                                    <input type="text" name="search" value="<%= filters.search %>"
+                                        placeholder="Buscar por email, nome ou chave..." class="form-input">
+                                    <button type="submit" class="btn btn-primary">Buscar</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <p class="results-count">
+                            <%= pagination.total %> licença(s) encontrada(s)
+                        </p>
+
+                        <!-- Table -->
+                        <div class="card">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>CHAVE</th>
+                                            <th>CLIENTE</th>
+                                            <th>PLANO</th>
+                                            <th>STATUS</th>
+                                            <th>INSTÂNCIAS</th>
+                                            <th>CRIADA EM</th>
+                                            <th>AÇÕES</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (licenses.length===0) { %>
+                                            <tr>
+                                                <td colspan="6" class="empty-state">Nenhuma licença encontrada</td>
+                                            </tr>
+                                            <% } else { %>
+                                                <% licenses.forEach(l=> { %>
+                                                    <tr>
+                                                        <td>
+                                                            <div style="display:flex; align-items:center; gap:6px;">
+                                                                <code
+                                                                    style="font-size: 12px; color: var(--accent-primary);"><%= l.license_key.substring(0, 8) %>...<%= l.license_key.substring(l.license_key.length - 4) %></code>
+                                                                <button
+                                                                    onclick="navigator.clipboard.writeText('<%= l.license_key %>');this.innerHTML='✓';setTimeout(()=>this.innerHTML='📋',1500)"
+                                                                    title="Copiar chave"
+                                                                    style="cursor:pointer;background:none;border:none;font-size:14px;padding:2px;">📋</button>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="cell-main">
+                                                                <%= l.name || '—' %>
+                                                            </div>
+                                                            <div class="cell-sub">
+                                                                <%= l.email %>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <%= l.plan %>
+                                                        </td>
+                                                        <td><span class="badge badge-license-<%= l.status %>">
+                                                                <%= formatLicenseStatus(l.status) %>
+                                                            </span></td>
+                                                        <td>
+                                                            <%= (l.instances || []).length %>/<%= l.max_instances %>
+                                                        </td>
+                                                        <td>
+                                                            <%= new Date(l.created_at).toLocaleString('pt-BR', {
+                                                                timeZone: 'America/Sao_Paulo' }) %>
+                                                        </td>
+                                                        <td>
+                                                            <% if (l.status !=='active' ) { %>
+                                                                <form method="POST"
+                                                                    action="/licenses/<%= l.id %>/reactivate"
+                                                                    style="display:flex;gap:4px;align-items:center;">
+                                                                    <select name="hours" class="form-select"
+                                                                        style="font-size:12px;padding:4px 8px;min-width:80px;">
+                                                                        <option value="24">24h</option>
+                                                                        <option value="48">48h</option>
+                                                                        <option value="72">72h</option>
+                                                                        <option value="168">7 dias</option>
+                                                                        <option value="">Permanente</option>
+                                                                    </select>
+                                                                    <button type="submit" class="btn btn-sm btn-primary"
+                                                                        style="font-size:11px;padding:4px 8px;">Ativar</button>
+                                                                </form>
+                                                                <% } else { %>
+                                                                    <span
+                                                                        style="color:var(--text-muted);font-size:12px;">—</span>
+                                                                    <% } %>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <% if (pagination.totalPages> 1) { %>
+                            <div class="pagination">
+                                <% if (pagination.page> 1) { %>
+                                    <a href="/licenses?page=<%= pagination.page - 1 %>&status=<%= filters.status %>&search=<%= filters.search %>"
+                                        class="btn btn-sm">← Anterior</a>
+                                    <% } %>
+                                        <span class="page-info">Página <%= pagination.page %> de <%=
+                                                    pagination.totalPages %></span>
+                                        <% if (pagination.page < pagination.totalPages) { %>
+                                            <a href="/licenses?page=<%= pagination.page + 1 %>&status=<%= filters.status %>&search=<%= filters.search %>"
+                                                class="btn btn-sm">Próxima →</a>
+                                            <% } %>
+                            </div>
+                            <% } %>
+
+                                <%- include('partials/footer') %>

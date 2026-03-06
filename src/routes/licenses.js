@@ -26,4 +26,22 @@ router.get('/', requireAuth, async (req, res) => {
     }
 });
 
+router.post('/:id/reactivate', requireAuth, async (req, res) => {
+    try {
+        const hours = parseInt(req.body.hours) || null;
+        const license = await License.reactivate(req.params.id, hours);
+        if (!license) {
+            return res.redirect('/licenses?error=Licença não encontrada');
+        }
+        const msg = hours
+            ? `Licença reativada por ${hours}h`
+            : 'Licença reativada permanentemente';
+        console.log(`Admin reactivated license: ${license.license_key} (${msg})`);
+        res.redirect(`/licenses?success=${encodeURIComponent(msg)}`);
+    } catch (err) {
+        console.error('Reactivate error:', err);
+        res.redirect('/licenses?error=Erro ao reativar licença');
+    }
+});
+
 module.exports = router;
