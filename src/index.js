@@ -14,6 +14,15 @@ const Admin = require('./models/admin');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ---------- Required Environment Variables ----------
+const REQUIRED_ENV = ['SESSION_SECRET', 'WEBHOOK_SECRET', 'DATABASE_URL'];
+for (const key of REQUIRED_ENV) {
+    if (!process.env[key]) {
+        console.error(`\n❌ FATAL: Missing required environment variable: ${key}\n`);
+        process.exit(1);
+    }
+}
+
 // ---------- Middleware ----------
 app.use(helmet({
     contentSecurityPolicy: false, // Allow inline scripts for Chart.js
@@ -39,7 +48,7 @@ app.use(session({
         tableName: 'session',
         createTableIfMissing: true,
     }),
-    secret: process.env.SESSION_SECRET || 'fallback-secret-change-me',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {

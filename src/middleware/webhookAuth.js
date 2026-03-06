@@ -1,37 +1,34 @@
-const pool = require('../config/database');
+const crypto = require('crypto');
 
-async function validateWebhookSecret(req, res, next) {
-    try {
-        const { secret } = req.body;
+function safeEqual(a, b) {
+    if (!a || !b) return false;
+    const bufA = Buffer.from(a, 'utf8');
+    const bufB = Buffer.from(b, 'utf8');
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
+}
 
-        // Get webhook secret from admin settings
-        const result = await pool.query('SELECT webhook_secret FROM admin LIMIT 1');
+function validateWebhookSecret(req, res, next) {
+    const webhookSecret = process.env.WEBHOOK_SECRET;
 
-        if (result.rows.length === 0) {
-            // No admin configured yet — accept all webhooks
-            console.warn('No admin configured. Accepting webhook without secret validation.');
-            return next();
-        }
-
-        const adminSecret = result.rows[0].webhook_secret;
-
-        // If no secret configured in admin, accept all
-        if (!adminSecret) {
-            console.warn('No webhook secret configured. Accepting webhook without validation.');
-            return next();
-        }
-
-        // Validate
-        if (secret !== adminSecret) {
-            console.warn('Webhook secret mismatch. Rejecting.');
-            return res.status(401).json({ error: 'Invalid webhook secret' });
-        }
-
-        next();
-    } catch (err) {
-        console.error('Error validating webhook secret:', err);
-        return res.status(500).json({ error: 'Internal server error' });
+    if (!webhookSecret) {
+        console.error('WEBHOOK_SECRET not configured. Rejecting all webhooks.');
+        return res.status(503).json({ error: 'Webhook secret not configured on server' });
     }
+
+    const secret = req.body?.secret || req.headers['x-webhook-secret'];
+
+    if (!secret) {
+        console.warn('Webhook request missing secret. Rejecting.');
+        return res.status(401).json({ error: 'Missing webhook secret' });
+    }
+
+    if (!safeEqual(secret, webhookSecret)) {
+        console.warn('Webhook secret mismatch. Rejecting.');
+        return res.status(401).json({ error: 'Invalid webhook secret' });
+    }
+
+    next();
 }
 
 module.exports = { validateWebhookSecret };

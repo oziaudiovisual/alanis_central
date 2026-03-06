@@ -1,6 +1,15 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const License = require('../models/license');
+
+function safeEqual(a, b) {
+    if (!a || !b) return false;
+    const bufA = Buffer.from(a, 'utf8');
+    const bufB = Buffer.from(b, 'utf8');
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
+}
 
 // POST /license/validate — Public endpoint
 router.post('/validate', async (req, res) => {
@@ -21,15 +30,16 @@ router.post('/validate', async (req, res) => {
 // POST /license/revoke — Protected by webhook secret
 router.post('/revoke', async (req, res) => {
     try {
-        const { key, secret } = req.body;
+        const { key } = req.body;
+        const secret = req.body.secret || req.headers['x-webhook-secret'];
+
         if (!key) {
             return res.status(400).json({ success: false, reason: 'missing_key' });
         }
 
-        // Verify webhook secret
-        const Admin = require('../models/admin');
-        const admin = await Admin.findByEmail(process.env.ADMIN_EMAIL || 'admin@alanis.com');
-        if (!admin || !admin.webhook_secret || secret !== admin.webhook_secret) {
+        // Verify webhook secret via env var with timing-safe comparison
+        const webhookSecret = process.env.WEBHOOK_SECRET;
+        if (!webhookSecret || !safeEqual(secret, webhookSecret)) {
             return res.status(401).json({ success: false, reason: 'unauthorized' });
         }
 
