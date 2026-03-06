@@ -120,8 +120,14 @@
                                 <% licenses.forEach(l=> { %>
                                     <tr>
                                         <td>
-                                            <code
-                                                style="font-size: 12px; color: var(--accent-primary);"><%= l.license_key.substring(0, 8) %>...<%= l.license_key.substring(l.license_key.length - 4) %></code>
+                                            <div style="display:flex; align-items:center; gap:6px;">
+                                                <code
+                                                    style="font-size: 12px; color: var(--accent-primary);"><%= l.license_key.substring(0, 8) %>...<%= l.license_key.substring(l.license_key.length - 4) %></code>
+                                                <button
+                                                    onclick="navigator.clipboard.writeText('<%= l.license_key %>');this.innerHTML='✓';setTimeout(()=>this.innerHTML='📋',1500)"
+                                                    title="Copiar chave"
+                                                    style="cursor:pointer;background:none;border:none;font-size:14px;padding:2px;">📋</button>
+                                            </div>
                                         </td>
                                         <td>
                                             <div class="cell-main">
