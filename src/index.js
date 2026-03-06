@@ -50,6 +50,26 @@ app.use(session({
     },
 }));
 
+// ---------- Domain-based routing ----------
+const LICENSE_DOMAIN = process.env.LICENSE_DOMAIN || 'licenca.alanis.digital';
+
+app.use((req, res, next) => {
+    const host = req.hostname;
+    if (host === LICENSE_DOMAIN) {
+        // Only allow license routes, static assets, and webhook on license domain
+        const allowed = req.path.startsWith('/license') ||
+            req.path.startsWith('/css/') ||
+            req.path.startsWith('/js/') ||
+            req.path === '/logo.webp' ||
+            req.path === '/favicon.ico' ||
+            req.path.startsWith('/webhook');
+        if (!allowed) {
+            return res.redirect('/license/recover');
+        }
+    }
+    next();
+});
+
 // ---------- Routes ----------
 app.use('/webhook', require('./routes/webhook'));
 app.use('/auth', require('./routes/auth'));
