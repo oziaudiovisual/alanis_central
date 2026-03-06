@@ -3,7 +3,7 @@ const { welcomeEmail, chargebackEmail, refundEmail } = require('./emailTemplates
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = 'Alanis <no-reply@alanis.digital>';
+const FROM = 'Alanis <noreply@licencas.alanis.digital>';
 
 async function sendWelcomeEmail(to, name, licenseKey, plan) {
     try {
