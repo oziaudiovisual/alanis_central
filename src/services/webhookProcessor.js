@@ -1,6 +1,7 @@
 const Transaction = require('../models/transaction');
 const Buyer = require('../models/buyer');
 const License = require('../models/license');
+const { sendWelcomeEmail, sendChargebackEmail, sendRefundEmail } = require('./emailService');
 
 const EVENT_TYPES = {
     COMPRA_APROVADA: 'compra_aprovada',
@@ -95,16 +96,24 @@ async function handleLicenseEvent(eventType, customer, data, transactionId) {
                 expiresAt: data.expiresAt || null,
             });
             console.log(`License created: ${license.license_key} for ${customer.email}`);
+            // Fire-and-forget email
+            sendWelcomeEmail(customer.email, customer.name, license.license_key, license.plan).catch(() => { });
             return license.license_key;
         }
         case EVENT_TYPES.REEMBOLSO: {
             const revoked = await License.revokeByEmail(customer.email, 'refund');
-            if (revoked.length > 0) console.log(`License revoked (refund): ${customer.email}`);
+            if (revoked.length > 0) {
+                console.log(`License revoked (refund): ${customer.email}`);
+                sendRefundEmail(customer.email, customer.name).catch(() => { });
+            }
             return null;
         }
         case EVENT_TYPES.CHARGEBACK: {
             const revoked = await License.revokeByEmail(customer.email, 'chargeback');
-            if (revoked.length > 0) console.log(`License revoked (chargeback): ${customer.email}`);
+            if (revoked.length > 0) {
+                console.log(`License revoked (chargeback): ${customer.email}`);
+                sendChargebackEmail(customer.email, customer.name).catch(() => { });
+            }
             return null;
         }
         default:

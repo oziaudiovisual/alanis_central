@@ -16,7 +16,7 @@
                     "type": "dockerfile",
                     "file": "Dockerfile"
                 },
-                "env": "DATABASE_URL=postgresql://postgres:central_db_2024@$(PROJECT_NAME)_central-db:5432/$(PROJECT_NAME)\nSESSION_SECRET=TROQUE_POR_CHAVE_SEGURA_64_CHARS\nWEBHOOK_SECRET=TROQUE_PELA_CHAVE_DO_WEBHOOK_CAKTO\nNODE_ENV=production\nPORT=3000\nADMIN_EMAIL=mariolellis@gmail.com\nADMIN_PASSWORD=BemMelhorAgora2026@",
+                "env": "DATABASE_URL=postgresql://postgres:central_db_2024@$(PROJECT_NAME)_central-db:5432/$(PROJECT_NAME)\nSESSION_SECRET=TROQUE_POR_CHAVE_SEGURA_64_CHARS\nWEBHOOK_SECRET=TROQUE_PELA_CHAVE_DO_WEBHOOK_CAKTO\nRESEND_API_KEY=re_SUA_CHAVE_AQUI\nNODE_ENV=production\nPORT=3000\nADMIN_EMAIL=mariolellis@gmail.com\nADMIN_PASSWORD=BemMelhorAgora2026@",
                 "deploy": {
                     "replicas": 1,
                     "command": null,

@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ---------- Required Environment Variables ----------
-const REQUIRED_ENV = ['SESSION_SECRET', 'WEBHOOK_SECRET', 'DATABASE_URL'];
+const REQUIRED_ENV = ['SESSION_SECRET', 'WEBHOOK_SECRET', 'DATABASE_URL', 'RESEND_API_KEY'];
 for (const key of REQUIRED_ENV) {
     if (!process.env[key]) {
         console.error(`\n❌ FATAL: Missing required environment variable: ${key}\n`);
