@@ -43,45 +43,56 @@
                                             <div class="recovery-plan">
                                                 <%= l.plan %>
                                             </div>
-                                            <div class="recovery-key">
-                                                <label>Sua chave de licença:</label>
-                                                <div class="recovery-key-box">
-                                                    <code id="key-<%= l.id %>"><%= l.license_key %></code>
-                                                    <button
-                                                        onclick="navigator.clipboard.writeText('<%= l.license_key %>');this.textContent='✓ Copiada';setTimeout(()=>this.textContent='Copiar',2000)"
-                                                        class="btn btn-sm btn-primary">Copiar</button>
+                                            <% if (l.status==='active' ) { %>
+                                                <div class="recovery-key">
+                                                    <label>Sua chave de licença:</label>
+                                                    <div class="recovery-key-box">
+                                                        <code><%= l.license_key %></code>
+                                                        <button
+                                                            onclick="navigator.clipboard.writeText('<%= l.license_key %>');this.textContent='✓ Copiada';setTimeout(()=>this.textContent='Copiar',2000)"
+                                                            class="btn btn-sm btn-primary">Copiar</button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="recovery-status">
-                                                <% if (l.status==='active' ) { %>
-                                                    <span class="badge badge-license-active">✅ Licença Ativa</span>
-                                                    <% if (l.expires_at) { %>
-                                                        <p class="recovery-expires">Expira em: <%= new
-                                                                Date(l.expires_at).toLocaleString('pt-BR', {
-                                                                timeZone: 'America/Sao_Paulo' }) %>
-                                                        </p>
-                                                        <% } %>
-                                                            <% } else if (l.status==='cancelled' ) { %>
-                                                                <span class="badge badge-license-cancelled">❌ Licença
-                                                                    Cancelada</span>
-                                                                <% if (l.cancel_reason==='refund' ) { %>
-                                                                    <p class="recovery-reason">Motivo: Reembolso
-                                                                        solicitado</p>
-                                                                    <% } else if (l.cancel_reason==='chargeback' ) { %>
-                                                                        <p class="recovery-reason">Motivo: Chargeback
-                                                                            registrado</p>
+                                                <span class="badge badge-license-active">✅ Licença Ativa</span>
+                                                <% if (l.expires_at) { %>
+                                                    <p class="recovery-expires">Expira em: <%= new
+                                                            Date(l.expires_at).toLocaleString('pt-BR', {
+                                                            timeZone: 'America/Sao_Paulo' }) %>
+                                                    </p>
+                                                    <% } %>
+                                                        <% } else if (l.status==='cancelled' ) { %>
+                                                            <span class="badge badge-license-cancelled">❌ Licença
+                                                                Cancelada</span>
+                                                            <% if (l.cancel_reason==='refund' ) { %>
+                                                                <p class="recovery-reason">Sua licença foi cancelada por
+                                                                    <strong>reembolso</strong>.</p>
+                                                                <% } else if (l.cancel_reason==='chargeback' ) { %>
+                                                                    <p class="recovery-reason">Sua licença foi cancelada
+                                                                        por <strong>chargeback</strong>.</p>
+                                                                    <% } else { %>
+                                                                        <p class="recovery-reason">Sua licença foi
+                                                                            cancelada.</p>
                                                                         <% } %>
+                                                                            <p class="recovery-reason">Data: <%= new
+                                                                                    Date(l.created_at).toLocaleString('pt-BR',
+                                                                                    { timeZone: 'America/Sao_Paulo' })
+                                                                                    %>
+                                                                            </p>
                                                                             <% } else if (l.status==='expired' ) { %>
                                                                                 <span
                                                                                     class="badge badge-license-expired">⏰
                                                                                     Licença Expirada</span>
+                                                                                <p class="recovery-reason">Sua licença
+                                                                                    expirou em <%= new
+                                                                                        Date(l.expires_at).toLocaleString('pt-BR',
+                                                                                        { timeZone: 'America/Sao_Paulo'
+                                                                                        }) %>.</p>
                                                                                 <% } else if (l.status==='suspended' ) {
                                                                                     %>
                                                                                     <span
                                                                                         class="badge badge-license-suspended">⚠️
                                                                                         Licença Suspensa</span>
                                                                                     <% } %>
-                                            </div>
                                         </div>
                                         <% }) %>
                                 </div>
