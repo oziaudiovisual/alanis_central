@@ -88,6 +88,7 @@ async function handleLicenseEvent(eventType, customer, data, transactionId) {
                 email: customer.email,
                 name: customer.name,
                 phone: customer.phone,
+                doc: customer.doc,
                 plan: data.plan || data.product?.name || 'default',
                 transactionId,
                 maxInstances: data.maxInstances || 1,

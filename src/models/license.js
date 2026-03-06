@@ -6,13 +6,13 @@ function generateKey() {
 }
 
 const License = {
-    async create({ email, name, phone, plan, transactionId, maxInstances, expiresAt }) {
+    async create({ email, name, phone, doc, plan, transactionId, maxInstances, expiresAt }) {
         const key = generateKey();
         const result = await pool.query(
-            `INSERT INTO licenses (license_key, email, name, phone, plan, transaction_id, max_instances, expires_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            `INSERT INTO licenses (license_key, email, name, phone, doc, plan, transaction_id, max_instances, expires_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
              RETURNING *`,
-            [key, email, name || null, phone || null, plan || 'default', transactionId || null, maxInstances || 1, expiresAt || null]
+            [key, email, name || null, phone || null, doc || null, plan || 'default', transactionId || null, maxInstances || 1, expiresAt || null]
         );
         return result.rows[0];
     },
@@ -72,10 +72,18 @@ const License = {
     },
 
     async revokeByEmail(email, reason) {
-        const status = reason === 'chargeback' ? 'cancelled' : 'cancelled';
         const result = await pool.query(
-            "UPDATE licenses SET status = $1 WHERE email = $2 AND status = 'active' RETURNING *",
-            [status, email]
+            "UPDATE licenses SET status = 'cancelled', cancel_reason = $1 WHERE email = $2 AND status = 'active' RETURNING *",
+            [reason, email]
+        );
+        return result.rows;
+    },
+
+    async findByEmailAndDoc(email, doc) {
+        const cleanDoc = doc.replace(/[^\d]/g, '');
+        const result = await pool.query(
+            'SELECT * FROM licenses WHERE email = $1 AND doc = $2 ORDER BY created_at DESC',
+            [email, cleanDoc]
         );
         return result.rows;
     },

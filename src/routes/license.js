@@ -44,4 +44,25 @@ router.post('/revoke', async (req, res) => {
     }
 });
 
+// GET /license/recover — Public recovery page
+router.get('/recover', (req, res) => {
+    res.render('recover', {});
+});
+
+// POST /license/recover — Lookup by email + CPF
+router.post('/recover', async (req, res) => {
+    try {
+        const { email, doc } = req.body;
+        if (!email || !doc) {
+            return res.render('recover', { error: 'Preencha todos os campos.', email, doc });
+        }
+
+        const licenses = await License.findByEmailAndDoc(email, doc);
+        res.render('recover', { licenses, email, doc });
+    } catch (err) {
+        console.error('License recover error:', err);
+        res.render('recover', { error: 'Erro interno. Tente novamente.' });
+    }
+});
+
 module.exports = router;
