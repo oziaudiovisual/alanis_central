@@ -19,18 +19,6 @@ router.get('/', requireAuth, async (req, res) => {
     }
 });
 
-// POST /settings/webhook-secret
-router.post('/webhook-secret', requireAuth, async (req, res) => {
-    try {
-        const { webhook_secret } = req.body;
-        await Admin.updateWebhookSecret(req.session.adminId, webhook_secret);
-        res.redirect('/settings?success=Webhook secret atualizado com sucesso');
-    } catch (err) {
-        console.error('Update webhook secret error:', err);
-        res.redirect('/settings?error=Erro ao atualizar webhook secret');
-    }
-});
-
 // POST /settings/password
 router.post('/password', requireAuth, async (req, res) => {
     try {

@@ -45,18 +45,9 @@
                                             </svg>
                                         </button>
                                     </div>
+                                    <p class="form-help" style="margin-top:12px;">A chave secreta do webhook é
+                                        gerenciada via variável de ambiente no servidor.</p>
                                 </div>
-
-                                <form method="POST" action="/settings/webhook-secret" class="settings-form">
-                                    <div class="form-group">
-                                        <label for="webhook_secret">Chave Secreta do Webhook</label>
-                                        <p class="form-help">Mesma chave configurada na Cakto.</p>
-                                        <input type="text" id="webhook_secret" name="webhook_secret"
-                                            value="<%= admin.webhook_secret || '' %>"
-                                            placeholder="Sua chave secreta da Cakto" class="form-input">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Salvar Secret</button>
-                                </form>
                             </div>
                         </div>
 
