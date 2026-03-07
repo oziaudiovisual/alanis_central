@@ -51,6 +51,31 @@
                             </div>
                         </div>
 
+                        <!-- Backup -->
+                        <div class="card settings-card">
+                            <div class="card-header">
+                                <h2>📦 Backup</h2>
+                            </div>
+                            <div class="card-body">
+                                <p style="margin-bottom:8px;">Exporta todas as tabelas em CSV e envia para o e-mail do
+                                    admin.</p>
+                                <p class="form-help" style="margin-bottom:16px;">Backup automático: todo dia às 2h da
+                                    manhã.</p>
+                                <form method="POST" action="/settings/backup">
+                                    <button type="submit" class="btn btn-primary"
+                                        onclick="this.disabled=true;this.innerHTML='Enviando...';this.form.submit();">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            <polyline points="7 10 12 15 17 10" />
+                                            <line x1="12" y1="15" x2="12" y2="3" />
+                                        </svg>
+                                        Fazer Backup Agora
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
                         <!-- Change Password -->
                         <div class="card settings-card">
                             <div class="card-header">
