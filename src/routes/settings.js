@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const Admin = require('../models/admin');
+const { runBackup } = require('../services/backupService');
 
 // GET /settings
 router.get('/', requireAuth, async (req, res) => {
@@ -43,6 +44,21 @@ router.post('/password', requireAuth, async (req, res) => {
     } catch (err) {
         console.error('Update password error:', err);
         res.redirect('/settings?error=Erro ao atualizar senha');
+    }
+});
+
+// POST /settings/backup — Manual backup trigger
+router.post('/backup', requireAuth, async (req, res) => {
+    try {
+        const success = await runBackup();
+        if (success) {
+            res.redirect('/settings?success=Backup enviado com sucesso para o e-mail');
+        } else {
+            res.redirect('/settings?error=Erro ao enviar backup');
+        }
+    } catch (err) {
+        console.error('Manual backup error:', err);
+        res.redirect('/settings?error=Erro ao gerar backup');
     }
 });
 
