@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
+const cron = require('node-cron');
 
 const pool = require('./config/database');
 const Admin = require('./models/admin');
@@ -131,6 +132,14 @@ async function bootstrap() {
         console.log(`   Dashboard: http://localhost:${PORT}`);
         console.log(`   Webhook:   POST http://localhost:${PORT}/webhook/cakto\n`);
     });
+
+    // Daily backup at 2:00 AM (São Paulo time)
+    const { runBackup } = require('./services/backupService');
+    cron.schedule('0 2 * * *', () => {
+        console.log('⏰ Cron: starting daily backup...');
+        runBackup();
+    }, { timezone: 'America/Sao_Paulo' });
+    console.log('✓ Daily backup scheduled (2:00 AM BRT)');
 }
 
 bootstrap();
