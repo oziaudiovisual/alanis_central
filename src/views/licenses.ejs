@@ -9,33 +9,7 @@
             </div>
         </div>
 
-        <script>
-            (function () {
-                var params = new URLSearchParams(window.location.search);
-                var s = params.get('success');
-                var e = params.get('error');
-                if (s) {
-                    var d = document.createElement('div');
-                    d.className = 'alert alert-success';
-                    d.textContent = s;
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var ph = document.querySelector('.page-header');
-                        ph.parentNode.insertBefore(d, ph.nextSibling);
-                        setTimeout(function () { d.remove(); }, 5000);
-                    });
-                }
-                if (e) {
-                    var d2 = document.createElement('div');
-                    d2.className = 'alert alert-error';
-                    d2.textContent = e;
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var ph = document.querySelector('.page-header');
-                        ph.parentNode.insertBefore(d2, ph.nextSibling);
-                        setTimeout(function () { d2.remove(); }, 5000);
-                    });
-                }
-            })();
-        </script>
+
 
         <!-- Stats -->
         <div class="stats-grid">
@@ -202,7 +176,7 @@
                                                 <% } else { %>
                                                     <form method="POST" action="/licenses/<%= l.id %>/reset"
                                                         style="display:inline;"
-                                                        onsubmit="return confirm('Tem certeza que deseja resetar as instâncias desta licença? O usuário precisará ativar novamente.')">
+                                                        onsubmit="event.preventDefault(); var f=this; alanis.confirm({ title:'Resetar licença', message:'As instâncias registradas serão removidas. O usuário precisará ativar novamente.', confirmText:'Resetar', cancelText:'Cancelar' }).then(function(ok){ if(ok) f.submit(); });">
                                                         <button type="submit" class="btn btn-sm btn-primary"
                                                             style="font-size:11px;padding:4px 8px;">Resetar</button>
                                                     </form>

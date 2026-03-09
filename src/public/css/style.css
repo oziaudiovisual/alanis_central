@@ -1033,3 +1033,146 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- Custom Confirm Modal ---------- */
+.alanis-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.alanis-modal.visible {
+  opacity: 1;
+}
+
+.alanis-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+}
+
+.alanis-modal-box {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(4, 255, 194, 0.05);
+  transform: scale(0.9) translateY(10px);
+  transition: transform 0.2s ease;
+}
+
+.alanis-modal.visible .alanis-modal-box {
+  transform: scale(1) translateY(0);
+}
+
+.alanis-modal-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-yellow-bg);
+  color: var(--color-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.alanis-modal-title {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.alanis-modal-message {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.alanis-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.alanis-modal-actions .btn {
+  min-width: 110px;
+  justify-content: center;
+  padding: 8px 18px;
+  font-size: 13px;
+}
+
+/* ---------- Toast Notifications ---------- */
+#alanis-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.alanis-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  max-width: 380px;
+}
+
+.alanis-toast.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.alanis-toast-success {
+  background: var(--bg-card);
+  border: 1px solid rgba(4, 255, 194, 0.3);
+  color: var(--color-green);
+}
+
+.alanis-toast-error {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 77, 106, 0.3);
+  color: var(--color-red);
+}
+
+.alanis-toast-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.alanis-toast-text {
+  color: var(--text-primary);
+  font-weight: 400;
+}
