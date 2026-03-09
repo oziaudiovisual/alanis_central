@@ -9,6 +9,7 @@ const EVENT_TYPES = {
     PIX_GERADO: 'pix_gerado',
     REEMBOLSO: 'reembolso',
     CHARGEBACK: 'chargeback',
+    CHECKOUT_ABANDONADO: 'checkout_abandonado',
 };
 
 async function processWebhook(event, data, rawPayload) {
@@ -146,6 +147,9 @@ function normalizeEvent(event) {
         'refunded': EVENT_TYPES.REEMBOLSO,
         'chargeback': EVENT_TYPES.CHARGEBACK,
         'charge_back': EVENT_TYPES.CHARGEBACK,
+        'checkout_abandonado': EVENT_TYPES.CHECKOUT_ABANDONADO,
+        'abandono_de_checkout': EVENT_TYPES.CHECKOUT_ABANDONADO,
+        'checkout_abandoned': EVENT_TYPES.CHECKOUT_ABANDONADO,
     };
 
     return mapping[normalized] || null;
