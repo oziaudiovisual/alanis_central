@@ -44,4 +44,18 @@ router.post('/:id/reactivate', requireAuth, async (req, res) => {
     }
 });
 
+router.post('/:id/reset', requireAuth, async (req, res) => {
+    try {
+        const license = await License.resetInstances(req.params.id);
+        if (!license) {
+            return res.redirect('/licenses?error=Licença não encontrada');
+        }
+        console.log(`Admin reset license instances: ${license.license_key}`);
+        res.redirect('/licenses?success=Instâncias da licença resetadas com sucesso');
+    } catch (err) {
+        console.error('Reset instances error:', err);
+        res.redirect('/licenses?error=Erro ao resetar instâncias');
+    }
+});
+
 module.exports = router;

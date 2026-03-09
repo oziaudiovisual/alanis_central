@@ -200,7 +200,13 @@
                                                         style="font-size:11px;padding:4px 8px;">Ativar</button>
                                                 </form>
                                                 <% } else { %>
-                                                    <span style="color:var(--text-muted);font-size:12px;">—</span>
+                                                    <form method="POST" action="/licenses/<%= l.id %>/reset"
+                                                        style="display:inline;"
+                                                        onsubmit="return confirm('Tem certeza que deseja resetar as instâncias desta licença? O usuário precisará ativar novamente.')">
+                                                        <button type="submit" class="btn btn-sm"
+                                                            style="font-size:11px;padding:4px 8px;background:var(--status-warning);color:#000;border:none;cursor:pointer;"
+                                                            title="Limpar instâncias registradas">🔄 Resetar</button>
+                                                    </form>
                                                     <% } %>
                                         </td>
                                     </tr>

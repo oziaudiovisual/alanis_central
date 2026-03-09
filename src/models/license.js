@@ -138,6 +138,14 @@ const License = {
         return { licenses: result.rows, total, totalPages: Math.ceil(total / limit) };
     },
 
+    async resetInstances(id) {
+        const result = await pool.query(
+            `UPDATE licenses SET instances = '[]'::jsonb WHERE id = $1 RETURNING *`,
+            [id]
+        );
+        return result.rows[0] || null;
+    },
+
     async countByStatus() {
         const result = await pool.query(`
             SELECT status, COUNT(*) as count FROM licenses GROUP BY status
