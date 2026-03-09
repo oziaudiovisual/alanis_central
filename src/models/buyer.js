@@ -5,14 +5,14 @@ const Buyer = {
         // Insert or update buyer based on email
         const result = await pool.query(`
       INSERT INTO buyers (email, name, phone, doc, status, first_purchase_at, last_event_at, total_spent)
-      VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), COALESCE($6, 0))
+      VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), COALESCE($6::numeric, 0))
       ON CONFLICT (email) DO UPDATE SET
         name = COALESCE($2, buyers.name),
         phone = COALESCE($3, buyers.phone),
         doc = COALESCE($4, buyers.doc),
         status = $5,
         last_event_at = NOW(),
-        total_spent = buyers.total_spent + COALESCE($6, 0),
+        total_spent = buyers.total_spent + COALESCE($6::numeric, 0),
         updated_at = NOW()
       RETURNING *
     `, [data.email, data.name, data.phone, data.doc, data.status, data.amount]);
