@@ -19,9 +19,16 @@ async function processWebhook(event, data, rawPayload) {
         return { success: false, reason: 'unknown_event' };
     }
 
-    // Extract customer info
+    // Extract customer info (Cakto uses docNumber, not doc)
     const customer = data.customer || {};
     const product = data.product || {};
+    const offer = data.offer || {};
+    const customerDoc = customer.docNumber || customer.doc || null;
+
+    // PIX consolidation: when purchase_approved arrives, update the matching pix_gerado transaction
+    if (eventType === EVENT_TYPES.COMPRA_APROVADA) {
+        await Transaction.consolidatePix(customer.email, product.id || offer.id);
+    }
 
     // Create transaction record
     const transaction = await Transaction.create({
@@ -30,10 +37,10 @@ async function processWebhook(event, data, rawPayload) {
         customer_name: customer.name || null,
         customer_email: customer.email || null,
         customer_phone: customer.phone || null,
-        customer_doc: customer.doc || null,
-        product_name: product.name || null,
+        customer_doc: customerDoc,
+        product_name: product.name || offer.name || null,
         product_id: product.id || null,
-        offer_id: product.offerId || null,
+        offer_id: offer.id || product.offerId || null,
         amount: data.amount || data.value || null,
         payment_method: data.paymentMethod || data.payment_method || null,
         status: data.status || eventType,
@@ -42,27 +49,27 @@ async function processWebhook(event, data, rawPayload) {
 
     // Update buyer status based on event
     if (customer.email) {
-        await updateBuyerFromEvent(eventType, customer, data);
+        await updateBuyerFromEvent(eventType, customer, customerDoc, data);
     }
 
     // License management
     let licenseKey = null;
     if (customer.email) {
-        licenseKey = await handleLicenseEvent(eventType, customer, data, transaction.id);
+        licenseKey = await handleLicenseEvent(eventType, customer, customerDoc, data, transaction.id);
     }
 
     console.log(`Webhook processed: ${eventType} | ${customer.email || 'unknown'} | TX#${transaction.id}${licenseKey ? ` | License: ${licenseKey}` : ''}`);
     return { success: true, transactionId: transaction.id, licenseKey };
 }
 
-async function updateBuyerFromEvent(eventType, customer, data) {
+async function updateBuyerFromEvent(eventType, customer, customerDoc, data) {
     switch (eventType) {
         case EVENT_TYPES.COMPRA_APROVADA:
             await Buyer.upsert({
                 email: customer.email,
                 name: customer.name,
                 phone: customer.phone,
-                doc: customer.doc,
+                doc: customerDoc,
                 status: 'active',
                 amount: data.amount || data.value || 0,
             });
@@ -82,15 +89,15 @@ async function updateBuyerFromEvent(eventType, customer, data) {
     }
 }
 
-async function handleLicenseEvent(eventType, customer, data, transactionId) {
+async function handleLicenseEvent(eventType, customer, customerDoc, data, transactionId) {
     switch (eventType) {
         case EVENT_TYPES.COMPRA_APROVADA: {
             const license = await License.create({
                 email: customer.email,
                 name: customer.name,
                 phone: customer.phone,
-                doc: customer.doc,
-                plan: data.plan || data.product?.name || 'default',
+                doc: customerDoc,
+                plan: data.plan || data.product?.name || data.offer?.name || 'default',
                 transactionId,
                 maxInstances: data.maxInstances || 1,
                 expiresAt: data.expiresAt || null,

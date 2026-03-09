@@ -98,6 +98,29 @@ const Transaction = {
             [limit]
         );
         return result.rows;
+    },
+
+    async consolidatePix(email, productId) {
+        if (!email) return null;
+        try {
+            const result = await pool.query(
+                `UPDATE transactions 
+                 SET status = 'consolidated'
+                 WHERE event_type = 'pix_gerado' 
+                   AND customer_email = $1 
+                   AND status != 'consolidated'
+                   AND received_at > NOW() - INTERVAL '24 hours'
+                 RETURNING id`,
+                [email]
+            );
+            if (result.rows.length > 0) {
+                console.log(`PIX consolidated for ${email}: ${result.rows.map(r => r.id).join(', ')}`);
+            }
+            return result.rows;
+        } catch (err) {
+            console.error('PIX consolidation error (non-fatal):', err.message);
+            return null;
+        }
     }
 };
 

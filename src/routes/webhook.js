@@ -20,7 +20,12 @@ router.post('/cakto', validateWebhookSecret, async (req, res) => {
 
         return res.status(200).json({ ok: true, transactionId: result.transactionId });
     } catch (err) {
-        console.error('Webhook processing error:', err);
+        console.error('Webhook processing error:', {
+            message: err.message,
+            stack: err.stack,
+            event: req.body?.event,
+            customerEmail: req.body?.data?.customer?.email,
+        });
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
