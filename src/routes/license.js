@@ -19,22 +19,9 @@ router.post('/validate', async (req, res) => {
             return res.status(400).json({ valid: false, reason: 'missing_key' });
         }
 
-        // Extract domain: body > Origin/Referer header > X-Forwarded-Host
-        let domain = req.body.domain || null;
-        if (!domain) {
-            try {
-                const origin = req.headers.origin || req.headers.referer;
-                if (origin) {
-                    domain = new URL(origin).hostname;
-                }
-            } catch (_) { /* ignore parse errors */ }
-        }
-        if (!domain) {
-            const fwdHost = req.headers['x-forwarded-host'];
-            if (fwdHost) {
-                domain = fwdHost.split(',')[0].trim().split(':')[0];
-            }
-        }
+        // Domain must come from the platform (req.body.domain)
+        // Do NOT use headers — they reflect the Central's own domain, not the client's
+        const domain = req.body.domain || null;
 
         const result = await License.validate(key, instanceId || null, domain);
         return res.json(result);
