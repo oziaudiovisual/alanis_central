@@ -39,8 +39,8 @@ const License = {
             return { valid: false, reason: 'expired' };
         }
 
-        // Save activated domain (only if not already set)
-        if (domain && !license.activated_domain) {
+        // Save activated domain (always update to keep it current)
+        if (domain && domain !== license.activated_domain) {
             await pool.query(
                 'UPDATE licenses SET activated_domain = $1 WHERE id = $2',
                 [domain, license.id]

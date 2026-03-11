@@ -19,14 +19,22 @@ router.post('/validate', async (req, res) => {
             return res.status(400).json({ valid: false, reason: 'missing_key' });
         }
 
-        // Extract domain from Origin or Referer header
-        let domain = null;
-        try {
-            const origin = req.headers.origin || req.headers.referer;
-            if (origin) {
-                domain = new URL(origin).hostname;
+        // Extract domain: body > Origin/Referer header > X-Forwarded-Host
+        let domain = req.body.domain || null;
+        if (!domain) {
+            try {
+                const origin = req.headers.origin || req.headers.referer;
+                if (origin) {
+                    domain = new URL(origin).hostname;
+                }
+            } catch (_) { /* ignore parse errors */ }
+        }
+        if (!domain) {
+            const fwdHost = req.headers['x-forwarded-host'];
+            if (fwdHost) {
+                domain = fwdHost.split(',')[0].trim().split(':')[0];
             }
-        } catch (_) { /* ignore parse errors */ }
+        }
 
         const result = await License.validate(key, instanceId || null, domain);
         return res.json(result);
