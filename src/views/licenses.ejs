@@ -115,6 +115,7 @@
                             <th>PLANO</th>
                             <th>STATUS</th>
                             <th>INSTÂNCIAS</th>
+                            <th>DOMÍNIO</th>
                             <th>CRIADA EM</th>
                             <th>AÇÕES</th>
                         </tr>
@@ -122,7 +123,7 @@
                     <tbody>
                         <% if (licenses.length===0) { %>
                             <tr>
-                                <td colspan="6" class="empty-state">Nenhuma licença encontrada</td>
+                                <td colspan="8" class="empty-state">Nenhuma licença encontrada</td>
                             </tr>
                             <% } else { %>
                                 <% licenses.forEach(l=> { %>
@@ -153,6 +154,13 @@
                                             </span></td>
                                         <td>
                                             <%= (l.instances || []).length %>/<%= l.max_instances %>
+                                        </td>
+                                        <td>
+                                            <% if (l.activated_domain) { %>
+                                                <a href="https://<%= l.activated_domain %>" target="_blank" rel="noopener" style="color: var(--accent-primary); text-decoration: none; font-size: 12px;" title="<%= l.activated_domain %>"><%= l.activated_domain %></a>
+                                            <% } else { %>
+                                                <span style="color: var(--text-secondary); font-size: 12px;">—</span>
+                                            <% } %>
                                         </td>
                                         <td>
                                             <%= new Date(l.created_at).toLocaleString('pt-BR', {

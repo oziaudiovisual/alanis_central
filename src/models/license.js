@@ -30,13 +30,21 @@ const License = {
         return result.rows;
     },
 
-    async validate(key, instanceId) {
+    async validate(key, instanceId, domain) {
         const license = await this.findByKey(key);
         if (!license) return { valid: false, reason: 'not_found' };
         if (license.status !== 'active') return { valid: false, reason: 'inactive', status: license.status };
         if (license.expires_at && new Date(license.expires_at) < new Date()) {
             await pool.query("UPDATE licenses SET status = 'expired' WHERE id = $1", [license.id]);
             return { valid: false, reason: 'expired' };
+        }
+
+        // Save activated domain (only if not already set)
+        if (domain && !license.activated_domain) {
+            await pool.query(
+                'UPDATE licenses SET activated_domain = $1 WHERE id = $2',
+                [domain, license.id]
+            );
         }
 
         // Instance management

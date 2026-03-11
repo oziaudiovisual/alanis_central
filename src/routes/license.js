@@ -19,7 +19,16 @@ router.post('/validate', async (req, res) => {
             return res.status(400).json({ valid: false, reason: 'missing_key' });
         }
 
-        const result = await License.validate(key, instanceId || null);
+        // Extract domain from Origin or Referer header
+        let domain = null;
+        try {
+            const origin = req.headers.origin || req.headers.referer;
+            if (origin) {
+                domain = new URL(origin).hostname;
+            }
+        } catch (_) { /* ignore parse errors */ }
+
+        const result = await License.validate(key, instanceId || null, domain);
         return res.json(result);
     } catch (err) {
         console.error('License validate error:', err);
