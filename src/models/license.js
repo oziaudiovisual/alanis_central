@@ -148,7 +148,7 @@ const License = {
 
     async resetInstances(id) {
         const result = await pool.query(
-            `UPDATE licenses SET instances = '[]'::jsonb WHERE id = $1 RETURNING *`,
+            `UPDATE licenses SET instances = '[]'::jsonb, activated_domain = NULL WHERE id = $1 RETURNING *`,
             [id]
         );
         return result.rows[0] || null;

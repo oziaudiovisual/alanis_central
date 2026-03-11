@@ -156,7 +156,7 @@
                                             <%= (l.instances || []).length %>/<%= l.max_instances %>
                                         </td>
                                         <td>
-                                            <% if (l.activated_domain) { %>
+                                            <% if (l.status === 'active' && l.activated_domain) { %>
                                                 <a href="https://<%= l.activated_domain %>" target="_blank" rel="noopener" style="color: var(--accent-primary); text-decoration: none; font-size: 12px;" title="<%= l.activated_domain %>"><%= l.activated_domain %></a>
                                             <% } else { %>
                                                 <span style="color: var(--text-secondary); font-size: 12px;">—</span>
